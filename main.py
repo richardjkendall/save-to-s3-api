@@ -35,13 +35,14 @@ def trigger_api():
   """
   if request.json:
     # need to save the file as JSON
-    print(json.dumps(request.json))
+    localdict = request.json
+    localdict["id"] = str(uuid.uuid4())
     s3.put_object(
-      Body=json.dumps(request.json),
+      Body=json.dumps(localdict),
       Bucket=os.environ.get("BUCKET"),
-      Key=str(uuid.uuid4())
+      Key=localdict["id"]
     )
-    return(success_json_response(request.json))
+    return(success_json_response(localdict))
   else:
     raise BadRequestException("Request must be JSON")
 
