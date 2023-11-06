@@ -31,7 +31,9 @@ def success_json_response(payload):
 @error_handler
 def trigger_api():
   """
-  Routine which runs the pipeline if it is not already running
+  Routine which saves request body as a JSON file to S3 if it is valid JSON
+
+  It adds an ID field which is also used as the file name
   """
   if request.json:
     # need to save the file as JSON
