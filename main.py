@@ -2,6 +2,7 @@ import logging, os, json, uuid
 import boto3
 
 from flask_lambda import FlaskLambda
+from flask_cors import CORS
 from flask import jsonify, make_response, request
 
 from error_handler import error_handler, BadRequestException
@@ -10,6 +11,7 @@ s3 = boto3.client("s3")
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] (%(threadName)-10s) %(message)s')
 lambda_handler = FlaskLambda(__name__)
+CORS(lambda_handler)
 logger = logging.getLogger(__name__)
 
 def check_environment():
