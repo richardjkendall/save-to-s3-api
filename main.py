@@ -1,17 +1,17 @@
 import logging, os, json, uuid
 import boto3
 
-from flask_lambda import FlaskLambda
+import awsgi
 from flask_cors import CORS
-from flask import jsonify, make_response, request
+from flask import Flask, jsonify, make_response, request
 
 from error_handler import error_handler, BadRequestException
 
 s3 = boto3.client("s3")
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] (%(threadName)-10s) %(message)s')
-lambda_handler = FlaskLambda(__name__)
-CORS(lambda_handler)
+app = Flask(__name__)
+CORS(app)
 logger = logging.getLogger(__name__)
 
 def check_environment():
@@ -29,7 +29,7 @@ def success_json_response(payload):
   response.headers["Content-type"] = "application/json"
   return response
 
-@lambda_handler.route("/save", methods=["POST"])
+@app.route("/save", methods=["POST"])
 @error_handler
 def trigger_api():
   """
@@ -50,5 +50,8 @@ def trigger_api():
   else:
     raise BadRequestException("Request must be JSON")
 
+def lambda_handler(event, context):
+  return awsgi.response(app, event, context, base64_content_types={"image/png"})
+
 if __name__ == "__main__":
-  lambda_handler.run(debug=True, port=5001, host="0.0.0.0", threaded=True)
+  app.run(debug=True, port=5001, host="0.0.0.0", threaded=True)
